@@ -2,12 +2,14 @@ import json
 import os
 import subprocess
 import sys
+from datetime import date
 from typing import Optional, Tuple
 
 import requests
 
 
 MAX_DIFF_CHARS = 2000
+DEFAULT_VERSION = "v1.0"
 DEFAULT_OLLAMA_HOST = "http://localhost:11434"
 DEFAULT_MODEL_NAME = "llama3"
 
@@ -151,6 +153,7 @@ def main() -> int:
     print(commit_message)
     print()
     print("Changelog:")
+    print(f"### Unreleased {DEFAULT_VERSION} ({date.today().isoformat()})")
     print(changelog)
     print("-------------------------")
     return 0
