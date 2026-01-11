@@ -44,9 +44,12 @@ def run_git_diff() -> Tuple[Optional[str], Optional[str]]:
 def build_prompt(diff_text: str) -> str:
     return (
         "You are a senior DevOps engineer.\n"
-        "Based on the following git diff:\n"
-        "- Generate ONE conventional commit message (max 72 characters)\n"
-        "- Generate a short changelog entry (2-3 lines, Markdown format)\n\n"
+        "Analyze the following git diff and respond in EXACTLY this format:\n\n"
+        "COMMIT_MESSAGE:\n"
+        "<one conventional commit message, max 72 characters>\n\n"
+        "CHANGELOG:\n"
+        "<2-3 bullet points in Markdown>\n\n"
+        "Do not add explanations or extra text.\n\n"
         f"{diff_text}\n"
     )
 
@@ -98,10 +101,34 @@ def call_ollama(prompt: str) -> Tuple[Optional[str], Optional[str]]:
 
 
 def split_output(content: str) -> Tuple[str, str]:
-    lines = [line.strip() for line in content.splitlines() if line.strip()]
-    commit_message = lines[0] if lines else "chore: update changelog"
-    changelog_lines = lines[1:] if len(lines) > 1 else ["- Updated changes from latest commit."]
-    changelog = "\n".join(changelog_lines)
+    commit_message = "chore: update changes"
+    changelog = "- Updated recent changes."
+
+    lines = content.splitlines()
+    current_section = None
+    changelog_lines = []
+
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+
+        if line.upper().startswith("COMMIT_MESSAGE"):
+            current_section = "commit"
+            continue
+
+        if line.upper().startswith("CHANGELOG"):
+            current_section = "changelog"
+            continue
+
+        if current_section == "commit" and commit_message.startswith("chore"):
+            commit_message = line
+        elif current_section == "changelog":
+            changelog_lines.append(line)
+
+    if changelog_lines:
+        changelog = "\n".join(changelog_lines)
+
     return commit_message, changelog
 
 
