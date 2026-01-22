@@ -23,6 +23,7 @@ load_dotenv()  # ← This loads .env automatically
 MAX_DIFF_CHARS = int(os.getenv("MAX_DIFF_CHARS", "400"))  # Faster default
 DEFAULT_OLLAMA_HOST = "http://localhost:11434"
 DEFAULT_MODEL_NAME = "phi3"
+DEFAULT_RELEASE_VERSION = "v1.0"
 
 
 def get_git_diff() -> Tuple[Optional[str], Optional[str]]:
@@ -30,7 +31,7 @@ def get_git_diff() -> Tuple[Optional[str], Optional[str]]:
     try:
         # Force UTF-8 to handle emojis, special chars, etc.
         result = subprocess.run(
-            ["git", "diff", "HEAD~1", "HEAD"],
+            ["git", "diff", "--cached"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
@@ -183,6 +184,7 @@ def main():
         if "Need at least one prior commit" in error:
             print("\n💡 Tip: Make your first commit, then run this after the second.")
         sys.exit(1 if "❌" in error else 0)
+    print("INFO Using staged changes (git diff --cached).")
 
     # Load config
     ollama_host = os.getenv("OLLAMA_HOST", DEFAULT_OLLAMA_HOST)
@@ -200,11 +202,12 @@ def main():
     commit_msg, changelog = parse_ai_response(response)
 
     # Output
+    release_version = os.getenv("RELEASE_VERSION", DEFAULT_RELEASE_VERSION)
     print("=" * 60)
     print("✅ AI-Generated Commit Message:")
     print(f"\033[1m{commit_msg}\033[0m\n")
     print("📝 Changelog Snippet:")
-    print(f"### Unreleased (v1.0) — {date.today().isoformat()}")
+    print(f"### Unreleased ({release_version}) — {date.today().isoformat()}")
     print(changelog)
     print("=" * 60)
     print("\n💡 Copy the commit message above and use:\n")
