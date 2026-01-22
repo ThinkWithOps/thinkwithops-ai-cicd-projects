@@ -20,7 +20,7 @@ from dotenv import load_dotenv
 load_dotenv()  # ← This loads .env automatically
 
 # Configuration
-MAX_DIFF_CHARS = int(os.getenv("MAX_DIFF_CHARS", "600"))  # Faster default
+MAX_DIFF_CHARS = int(os.getenv("MAX_DIFF_CHARS", "400"))  # Faster default
 DEFAULT_OLLAMA_HOST = "http://localhost:11434"
 DEFAULT_MODEL_NAME = "phi3"
 
@@ -81,7 +81,7 @@ def call_ollama(prompt: str, host: str, model: str) -> Tuple[Optional[str], Opti
     url = f"{host.rstrip('/')}/api/chat"
 
     # Get optional config from env
-    max_tokens = int(os.getenv("OLLAMA_MAX_TOKENS", "120"))  # Cap output
+    max_tokens = int(os.getenv("OLLAMA_MAX_TOKENS", "80"))  # Cap output
     keep_alive = os.getenv("OLLAMA_KEEP_ALIVE", "15m")       # Keep model loaded
 
     payload = {
