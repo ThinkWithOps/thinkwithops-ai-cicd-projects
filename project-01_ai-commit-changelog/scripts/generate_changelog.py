@@ -56,18 +56,20 @@ def get_git_diff() -> Tuple[Optional[str], Optional[str]]:
 
 
 def build_prompt(diff: str) -> str:
-    return f"""You are a senior DevOps engineer. Analyze the following git diff and respond EXACTLY in this format:
+    return f"""You are a senior DevOps engineer. Your job is to write a concise git commit message and a changelog.
 
-COMMIT_MESSAGE:
-<one line, max 72 chars, conventional style>
+RULES:
+- First line MUST be a conventional commit: type(scope): description (max 72 chars)
+- Then write a changelog with 2-3 bullet points starting with "- "
+- NO extra text, NO explanations, NO markdown headers
 
-CHANGELOG:
-- Bullet point 1
-- Bullet point 2
+Example:
+feat(auth): add password reset flow
+- Add 'Forgot Password' button on login page
+- Implement email token validation
 
-Do not add any other text.
+Now analyze this diff:
 
-Git diff:
 {diff}"""
 
 
@@ -97,34 +99,63 @@ def call_ollama(prompt: str, host: str, model: str) -> Tuple[Optional[str], Opti
 
 
 def parse_ai_response(response: str) -> Tuple[str, str]:
-    """Extract commit message and changelog from AI output."""
-    commit_msg = "chore: update changes"
-    changelog_lines = ["- Minor updates."]
-
+    """Extract commit message and changelog from AI output (flexible parsing)."""
     lines = response.splitlines()
-    state = None
+
+    # Strategy 1: Try to find a line that looks like a conventional commit
+    commit_msg = None
+    changelog_lines = []
+
+    # Look for a line that starts with type(scope): or type:
+    import re
+    commit_pattern = re.compile(r'^[a-z]+(\([^)]+\))?:\s*.{5,72}$')
 
     for line in lines:
         line = line.strip()
         if not line:
             continue
 
-        if line.upper().startswith("COMMIT_MESSAGE"):
-            state = "commit"
-            continue
-        elif line.upper().startswith("CHANGELOG"):
-            state = "changelog"
-            continue
+        # If line matches conventional commit format, use it
+        if commit_pattern.match(line):
+            commit_msg = line[:72]
+            break
 
-        if state == "commit" and commit_msg == "chore: update changes":
-            commit_msg = line[:72]  # enforce length
-        elif state == "changelog":
-            if line.startswith("- "):
-                changelog_lines.append(line)
+    # If no structured commit found, try first short line (<80 chars, not bullet)
+    if not commit_msg:
+        for line in lines:
+            line = line.strip()
+            if line and len(line) <= 72 and not line.startswith(('-', '*', '•', '#', 'CHANGELOG', 'Commit')):
+                # Avoid obvious non-commit lines
+                if 'commit' not in line.lower() and 'message' not in line.lower():
+                    commit_msg = line
+                    break
 
-    # Remove default if real content found
-    if len(changelog_lines) > 1:
-        changelog_lines = changelog_lines[1:]
+    # Fallback
+    if not commit_msg:
+        commit_msg = "chore: update changes"
+
+    # Extract changelog: look for bullet points
+    in_changelog = False
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith(('CHANGELOG', 'Changelog', '###')):
+            in_changelog = True
+            continue
+        if in_changelog and stripped.startswith(('-', '*', '•')):
+            changelog_lines.append(stripped)
+        elif in_changelog and not stripped:
+            # End of changelog section
+            break
+
+    # If no bullets found, scan entire response for bullets
+    if not changelog_lines:
+        for line in lines:
+            stripped = line.strip()
+            if stripped.startswith(('-', '*', '•')):
+                changelog_lines.append(stripped)
+
+    if not changelog_lines:
+        changelog_lines = ["- Minor updates."]
 
     changelog = "\n".join(changelog_lines)
     return commit_msg, changelog
