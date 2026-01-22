@@ -121,7 +121,7 @@ def parse_ai_response(response: str) -> Tuple[str, str]:
 
     # Look for a line that starts with type(scope): or type:
     import re
-    commit_pattern = re.compile(r'^[a-z]+(\([^)]+\))?:\s*.{5,72}$')
+    commit_pattern = re.compile(r'^[a-z]+(\([^)]+\))?:\s*.{5,}$')
 
     for line in lines:
         line = line.strip()
@@ -130,14 +130,14 @@ def parse_ai_response(response: str) -> Tuple[str, str]:
 
         # If line matches conventional commit format, use it
         if commit_pattern.match(line):
-            commit_msg = line[:72]
+            commit_msg = line
             break
 
     # If no structured commit found, try first short line (<80 chars, not bullet)
     if not commit_msg:
         for line in lines:
             line = line.strip()
-            if line and len(line) <= 72 and not line.startswith(('-', '*', '•', '#', 'CHANGELOG', 'Commit')):
+            if line and not line.startswith(('-', '*', '•', '#', 'CHANGELOG', 'Commit')):
                 # Avoid obvious non-commit lines
                 if 'commit' not in line.lower() and 'message' not in line.lower():
                     commit_msg = line
