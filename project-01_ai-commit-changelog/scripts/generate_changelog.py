@@ -1,114 +1,105 @@
-import json
+#!/usr/bin/env python3
+"""
+AI Commit & Changelog Generator (Local Version)
+Uses Ollama (llama3, codellama, etc.) to generate:
+- A conventional commit message (<72 chars)
+- A user-friendly changelog snippet (2-3 bullet points)
+
+Designed to run locally where Ollama is installed and running.
+"""
+
 import os
-import subprocess
 import sys
+import subprocess
+import requests
+import json
 from datetime import date
 from typing import Optional, Tuple
 
-import requests
-
-
+# Configuration
 MAX_DIFF_CHARS = 2000
-DEFAULT_VERSION = "v1.0"
 DEFAULT_OLLAMA_HOST = "http://localhost:11434"
 DEFAULT_MODEL_NAME = "llama3"
 
 
-def run_git_diff() -> Tuple[Optional[str], Optional[str]]:
+def get_git_diff() -> Tuple[Optional[str], Optional[str]]:
+    """Get diff of the last commit (HEAD vs HEAD~1)."""
     try:
         result = subprocess.run(
             ["git", "diff", "HEAD~1", "HEAD"],
-            check=False,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
+            check=False
         )
     except FileNotFoundError:
-        return None, "git is not installed or not in PATH."
-    except Exception as exc:
-        return None, f"failed to run git: {exc}"
+        return None, "❌ Git not found. Is Git installed and in PATH?"
+    except Exception as e:
+        return None, f"❌ Failed to run git: {e}"
 
     if result.returncode != 0:
-        stderr = result.stderr.strip()
-        if "not a git repository" in stderr.lower():
-            return None, "this directory is not a git repository."
-        if "bad revision" in stderr.lower() or "unknown revision" in stderr.lower():
-            return None, "no previous commit found (need at least two commits)."
-        return None, f"git diff failed: {stderr or 'unknown error'}"
+        err = result.stderr.strip().lower()
+        if "not a git repository" in err:
+            return None, "❌ Not a Git repository."
+        if "unknown revision" in err or "bad revision" in err:
+            return None, "❌ Need at least one prior commit (push after first commit)."
+        return None, f"❌ Git error: {result.stderr.strip()}"
 
-    diff_text = result.stdout.strip()
-    if not diff_text:
-        return None, "no changes detected between HEAD~1 and HEAD."
+    diff = result.stdout.strip()
+    if not diff:
+        return None, "ℹ️ No changes detected in the last commit."
 
-    return diff_text[:MAX_DIFF_CHARS], None
-
-
-def build_prompt(diff_text: str) -> str:
-    return (
-        "You are a senior DevOps engineer.\n"
-        "Analyze the following git diff and respond in EXACTLY this format:\n\n"
-        "COMMIT_MESSAGE:\n"
-        "<one conventional commit message, max 72 characters>\n\n"
-        "CHANGELOG:\n"
-        "<2-3 bullet points in Markdown>\n\n"
-        "Do not add explanations or extra text.\n\n"
-        f"{diff_text}\n"
-    )
+    return diff[:MAX_DIFF_CHARS], None
 
 
-def parse_ollama_stream(stream_lines) -> str:
-    parts = []
-    for raw_line in stream_lines:
-        line = raw_line.strip()
-        if not line:
-            continue
-        try:
-            payload = json.loads(line)
-        except json.JSONDecodeError:
-            continue
-        if payload.get("message", {}).get("content"):
-            parts.append(payload["message"]["content"])
-    return "".join(parts).strip()
+def build_prompt(diff: str) -> str:
+    return f"""You are a senior DevOps engineer. Analyze the following git diff and respond EXACTLY in this format:
+
+COMMIT_MESSAGE:
+<one line, max 72 chars, conventional style>
+
+CHANGELOG:
+- Bullet point 1
+- Bullet point 2
+
+Do not add any other text.
+
+Git diff:
+{diff}"""
 
 
-def call_ollama(prompt: str) -> Tuple[Optional[str], Optional[str]]:
-    host = os.getenv("OLLAMA_HOST", DEFAULT_OLLAMA_HOST)
-    model = os.getenv("MODEL_NAME", DEFAULT_MODEL_NAME)
-
+def call_ollama(prompt: str, host: str, model: str) -> Tuple[Optional[str], Optional[str]]:
+    """Call Ollama's /api/chat endpoint."""
     url = f"{host.rstrip('/')}/api/chat"
     payload = {
         "model": model,
-        "stream": True,
-        "messages": [
-            {
-                "role": "user",
-                "content": prompt,
-            }
-        ],
+        "messages": [{"role": "user", "content": prompt}],
+        "stream": False,
+        "options": {"temperature": 0.3}
     }
 
     try:
-        response = requests.post(url, json=payload, stream=True, timeout=60)
-    except requests.RequestException as exc:
-        return None, f"failed to reach Ollama at {url}: {exc}"
+        resp = requests.post(url, json=payload, timeout=120)
+    except requests.RequestException as e:
+        return None, f"❌ Failed to connect to Ollama at {url}: {e}"
 
-    if response.status_code != 200:
-        return None, f"Ollama returned HTTP {response.status_code}: {response.text.strip()}"
+    if resp.status_code != 200:
+        return None, f"❌ Ollama error ({resp.status_code}): {resp.text[:200]}"
 
-    content = parse_ollama_stream(response.iter_lines(decode_unicode=True))
-    if not content:
-        return None, "received empty response from Ollama."
+    try:
+        content = resp.json()["message"]["content"]
+        return content.strip(), None
+    except (KeyError, json.JSONDecodeError):
+        return None, "❌ Unexpected response format from Ollama."
 
-    return content, None
 
+def parse_ai_response(response: str) -> Tuple[str, str]:
+    """Extract commit message and changelog from AI output."""
+    commit_msg = "chore: update changes"
+    changelog_lines = ["- Minor updates."]
 
-def split_output(content: str) -> Tuple[str, str]:
-    commit_message = "chore: update changes"
-    changelog = "- Updated recent changes."
-
-    lines = content.splitlines()
-    current_section = None
-    changelog_lines = []
+    lines = response.splitlines()
+    state = None
 
     for line in lines:
         line = line.strip()
@@ -116,48 +107,64 @@ def split_output(content: str) -> Tuple[str, str]:
             continue
 
         if line.upper().startswith("COMMIT_MESSAGE"):
-            current_section = "commit"
+            state = "commit"
+            continue
+        elif line.upper().startswith("CHANGELOG"):
+            state = "changelog"
             continue
 
-        if line.upper().startswith("CHANGELOG"):
-            current_section = "changelog"
-            continue
+        if state == "commit" and commit_msg == "chore: update changes":
+            commit_msg = line[:72]  # enforce length
+        elif state == "changelog":
+            if line.startswith("- "):
+                changelog_lines.append(line)
 
-        if current_section == "commit" and commit_message.startswith("chore"):
-            commit_message = line
-        elif current_section == "changelog":
-            changelog_lines.append(line)
+    # Remove default if real content found
+    if len(changelog_lines) > 1:
+        changelog_lines = changelog_lines[1:]
 
-    if changelog_lines:
-        changelog = "\n".join(changelog_lines)
-
-    return commit_message, changelog
+    changelog = "\n".join(changelog_lines)
+    return commit_msg, changelog
 
 
-def main() -> int:
-    diff_text, error = run_git_diff()
+def main():
+    print("🔍 Analyzing your latest commit with AI...\n")
+
+    diff, error = get_git_diff()
     if error:
         print(error)
-        return 1
+        if "Need at least one prior commit" in error:
+            print("\n💡 Tip: Make your first commit, then run this after the second.")
+        sys.exit(1 if "❌" in error else 0)
 
-    prompt = build_prompt(diff_text)
-    response_text, error = call_ollama(prompt)
+    # Load config
+    ollama_host = os.getenv("OLLAMA_HOST", DEFAULT_OLLAMA_HOST)
+    model_name = os.getenv("MODEL_NAME", DEFAULT_MODEL_NAME)
+
+    print(f"🧠 Using model: {model_name} @ {ollama_host}")
+    print("⏳ This may take 10-30 seconds (first run loads model)...\n")
+
+    prompt = build_prompt(diff)
+    response, error = call_ollama(prompt, ollama_host, model_name)
     if error:
         print(error)
-        return 0
+        sys.exit(1)
 
-    commit_message, changelog = split_output(response_text)
+    commit_msg, changelog = parse_ai_response(response)
 
-    print("-------------------------")
-    print("Commit Message:")
-    print(commit_message)
-    print()
-    print("Changelog:")
-    print(f"### Unreleased {DEFAULT_VERSION} ({date.today().isoformat()})")
+    # Output
+    print("=" * 60)
+    print("✅ AI-Generated Commit Message:")
+    print(f"\033[1m{commit_msg}\033[0m\n")
+    print("📝 Changelog Snippet:")
+    print(f"### Unreleased (v1.0) — {date.today().isoformat()}")
     print(changelog)
-    print("-------------------------")
-    return 0
+    print("=" * 60)
+    print("\n💡 Copy the commit message above and use:\n")
+    print(f'git commit --amend -m "{commit_msg}"')
+    print("# or for new commit:")
+    print(f'git commit -m "{commit_msg}"')
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

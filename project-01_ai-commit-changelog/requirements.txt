@@ -1,0 +1,2 @@
+requests
+python-dotenv  # optional, but good practice
