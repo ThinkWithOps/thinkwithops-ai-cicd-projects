@@ -23,14 +23,17 @@ DEFAULT_MODEL_NAME = "llama3"
 
 
 def get_git_diff() -> Tuple[Optional[str], Optional[str]]:
-    """Get diff of the last commit (HEAD vs HEAD~1)."""
+    """Get diff of the last commit (HEAD vs HEAD~1) using UTF-8 encoding."""
     try:
+        # Force UTF-8 to handle emojis, special chars, etc.
         result = subprocess.run(
             ["git", "diff", "HEAD~1", "HEAD"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
-            check=False
+            check=False,
+            encoding='utf-8',          # Critical: force UTF-8
+            errors='replace'           # Replace undecodable chars instead of crashing
         )
     except FileNotFoundError:
         return None, "❌ Git not found. Is Git installed and in PATH?"
