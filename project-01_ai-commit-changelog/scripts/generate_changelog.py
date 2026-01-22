@@ -15,6 +15,9 @@ import requests
 import json
 from datetime import date
 from typing import Optional, Tuple
+from dotenv import load_dotenv
+
+load_dotenv()  # ← This loads .env automatically
 
 # Configuration
 MAX_DIFF_CHARS = 2000
