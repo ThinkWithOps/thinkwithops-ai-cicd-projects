@@ -20,9 +20,9 @@ from dotenv import load_dotenv
 load_dotenv()  # ← This loads .env automatically
 
 # Configuration
-MAX_DIFF_CHARS = 2000
+MAX_DIFF_CHARS = int(os.getenv("MAX_DIFF_CHARS", "600"))  # Faster default
 DEFAULT_OLLAMA_HOST = "http://localhost:11434"
-DEFAULT_MODEL_NAME = "llama3"
+DEFAULT_MODEL_NAME = "phi3"
 
 
 def get_git_diff() -> Tuple[Optional[str], Optional[str]]:
@@ -77,17 +77,27 @@ Now analyze this diff:
 
 
 def call_ollama(prompt: str, host: str, model: str) -> Tuple[Optional[str], Optional[str]]:
-    """Call Ollama's /api/chat endpoint."""
+    """Call Ollama with optimized settings for speed and brevity."""
     url = f"{host.rstrip('/')}/api/chat"
+
+    # Get optional config from env
+    max_tokens = int(os.getenv("OLLAMA_MAX_TOKENS", "120"))  # Cap output
+    keep_alive = os.getenv("OLLAMA_KEEP_ALIVE", "15m")       # Keep model loaded
+
     payload = {
         "model": model,
         "messages": [{"role": "user", "content": prompt}],
         "stream": False,
-        "options": {"temperature": 0.3}
+        "options": {
+            "temperature": 0.3,
+            "num_predict": max_tokens,          # Stop after N tokens
+            "stop": ["\n\n", "COMMIT_MESSAGE"]  # Stop early if pattern seen
+        },
+        "keep_alive": keep_alive                # Keep in memory
     }
 
     try:
-        resp = requests.post(url, json=payload, timeout=120)
+        resp = requests.post(url, json=payload, timeout=60)
     except requests.RequestException as e:
         return None, f"❌ Failed to connect to Ollama at {url}: {e}"
 
