@@ -103,17 +103,15 @@ feat(config): add ollama support
 > 💡 Tip: Run this **before every commit** to keep your history clean!
 
 ### Optional: Global Shell Alias (Use in Any Repo)
+#### For Git Bash on Windows:
 
 To use this tool from any Git repository without copying files, create a shell alias.
 
-#### For Git Bash on Windows:
-1. Open `~/.bashrc` (create it if it doesn’t exist)
-2. Add this line (adjust path to your actual script location):
-   ```bash
-   alias ai-commit='python /d/workspace/ThinkWithOps/thinkwithops-ai-cicd-projects/project-01_ai-commit-changelog/scripts/generate_changelog.py'
-3. Reload your shell: `source ~/.bashrc`   
-4. Now you can use it anywhere:`git add .`
-   ai-commit
+Run this once to make `ai-commit` available in any repo:
+```bash
+echo "alias ai-commit='python /d/workspace/ThinkWithOps/thinkwithops-ai-cicd-projects/project-01_ai-commit-changelog/scripts/generate_changelog.py'" >> ~/.bashrc
+source ~/.bashrc
+```
    
 > 💡 **Note**: Adjust the path to match your actual script location.
 
