@@ -86,12 +86,14 @@ You can also use `llama3`:
 `cp .env.example .env`
 
 Edit `.env` to customize:
+```
 OLLAMA_HOST=http://localhost:11434
 MODEL_NAME=phi3
 MAX_DIFF_CHARS=400
 OLLAMA_MAX_TOKENS=80
 OLLAMA_KEEP_ALIVE=15m
 RELEASE_VERSION=v1.0
+```
 
 > 🔒 **Note**: `.env` is in `.gitignore` — never committed.
 
