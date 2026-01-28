@@ -102,7 +102,7 @@ feat(config): add ollama support
 
 > 💡 Tip: Run this **before every commit** to keep your history clean!
 
-### Optional: Global Shell Alias (Use in Any Repo)
+### Step 6: Optional: Global Shell Alias (Use in Any Repo)
 #### For Git Bash on Windows:
 
 To use this tool from any Git repository without copying files, create a shell alias.
