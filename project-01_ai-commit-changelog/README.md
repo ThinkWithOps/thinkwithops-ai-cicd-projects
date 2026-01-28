@@ -154,6 +154,7 @@ A: The script already uses UTF-8 — this should not happen. Ensure your termina
 > “No OpenAI. No AWS. Just local AI on my laptop.”
 
 ## 📦 Project Structure
+```text
 project-01_ai-commit-changelog/
 ├── scripts/
 │   └── generate_changelog.py   # Main script
@@ -161,5 +162,6 @@ project-01_ai-commit-changelog/
 ├── .env.example                # Config template
 ├── .gitignore                  # Ignores .env
 └── README.md                   # This file
+```
 
 Made with ❤️ for DevOps engineers who love clean Git history.
