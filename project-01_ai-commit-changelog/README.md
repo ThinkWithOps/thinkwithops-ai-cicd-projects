@@ -1,4 +1,4 @@
-# 🤖 AI Commit & Changelog Generator
+# 🤖 Project1: AI Commit & Changelog Generator
 
 Automatically generate **professional commit messages** and **user-friendly changelogs** using **local AI (Ollama)** — **100% free, offline, and open-source**.
 
@@ -13,6 +13,9 @@ Automatically generate **professional commit messages** and **user-friendly chan
   - A **changelog snippet** (2–3 bullet points)
 
 Perfect for replacing vague commits like `"wip"` or `"fix stuff"` with clean, professional messages — **before you commit!**
+
+## 🔁 Workflow Flowchart
+![AI commit flowchart](flowchart.png)
 
 ## 🛠️ Prerequisites
 
@@ -65,6 +68,13 @@ You can also use `llama3`:
 `ollama pull llama3`
 
 ## ▶️ How to Use
+
+## 📌 Table of Contents (How to Use)
+1. [Step 1: Install Python Dependencies](#step-1-install-python-dependencies)
+2. [Step 2: Configure `.env` (Optional but Recommended)](#step-2-configure-env-optional-but-recommended)
+3. [Step 3: Stage Your Changes](#step-3-stage-your-changes)
+4. [Step 4: Generate AI Commit Message](#step-4-generate-ai-commit-message)
+5. [Step 5: Commit with the AI Message](#step-5-commit-with-the-ai-message)
 
 ### Step 1: Install Python Dependencies
 `pip install -r requirements.txt`
