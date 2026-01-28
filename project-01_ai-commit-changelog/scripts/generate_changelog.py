@@ -63,7 +63,7 @@ def build_prompt(diff: str) -> str:
     return f"""You are a senior DevOps engineer. Your job is to write a concise git commit message and a changelog.
 
 RULES:
-- First line MUST be a conventional commit: type(scope): description (max 72 chars)
+- First line MUST be a conventional commit: type(scope): description
 - Then write a changelog with 2-3 bullet points starting with "- "
 - NO extra text, NO explanations, NO markdown headers
 
@@ -211,8 +211,9 @@ def main():
     print(changelog)
     print("=" * 60)
     print("\n💡 Copy the commit message above and use:\n")
+    print("# If you already committed:")
     print(f'git commit --amend -m "{commit_msg}"')
-    print("# or for new commit:")
+    print("\n# Or for a new commit:")
     print(f'git commit -m "{commit_msg}"')
 
 
