@@ -15,7 +15,9 @@ Automatically generate **professional commit messages** and **user-friendly chan
 Perfect for replacing vague commits like `"wip"` or `"fix stuff"` with clean, professional messages — **before you commit!**
 
 ## 🔁 Workflow Flowchart
-![AI commit flowchart](flowchart.png)
+<p align="center">
+  <img src="flowchart.png" alt="AI commit flowchart" width="100%">
+</p>
 
 ## 🛠️ Prerequisites
 
@@ -75,6 +77,7 @@ You can also use `llama3`:
 3. [Step 3: Stage Your Changes](#step-3-stage-your-changes)
 4. [Step 4: Generate AI Commit Message](#step-4-generate-ai-commit-message)
 5. [Step 5: Commit with the AI Message](#step-5-commit-with-the-ai-message)
+6. [Step 6: Optional: Global Shell Alias (Use in Any Repo)](#step-6-optional-global-shell-alias-use-in-any-repo)
 
 ### Step 1: Install Python Dependencies
 `pip install -r requirements.txt`
