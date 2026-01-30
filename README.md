@@ -10,18 +10,18 @@ All projects are designed to be **free-tier friendly**, **vendor-neutral**, and 
 
 ## 📦 Projects Overview
 
-| # | Project | Tech Stack (DevOps + AI Tools) | Difficulty | Estimated Setup Time |
-|---|--------|--------------------------------|------------|----------------------|
-| 1 | AI Commit & Changelog Generator | GitHub Actions · Python · Conventional Commits · Ollama (local LLM) · Markdown | Easy | 1–2 hrs |
-| 2 | Build-Failure Explainer Bot | Jenkins REST API · Python · Log Parsing · Ollama · Slack Webhook | Easy | 2–3 hrs |
-| 3 | Slack Pipeline Reporter | GitHub Actions / GitLab CI · Slack SDK · Python · Ollama | Easy | 2–3 hrs |
-| 4 | AI Code Review Agent | GitHub API · LangChain Agents · Ollama · Docker | Medium | 3–4 hrs |
-| 5 | Pipeline Doc & Visualization Generator | Jenkinsfile Parser · Graphviz · Mermaid · Python · Streamlit | Medium | 4–5 hrs |
-| 6 | Test Coverage Summarizer AI | PyTest · Coverage.py · Python · Ollama | Medium | 4–6 hrs |
-| 7 | Pipeline Optimizer | GitHub Actions Logs · Python · Heuristic Rules · Ollama | Difficult | 6–8 hrs |
-| 8 | Auto-Rollback Trigger with AI Diagnosis | GitHub Actions · Prometheus Alerts · Python · AWS Lambda (Free Tier) | Difficult | 8–10 hrs |
-| 9 | AI-Powered Security Gate | GitHub CodeQL · Checkov · Python · Policy Rules · Ollama | Difficult | 8–10 hrs |
-| 10 | Self-Healing CI Pipeline Agent | LangGraph · CrewAI · GitHub API · Docker · AWS EC2 (Free Tier) | Difficult | 10–12 hrs |
+| # | Project | Tech Stack (DevOps + AI Tools) | Difficulty | Estimated Setup Time | Status |
+|---|--------|--------------------------------|------------|----------------------|--------|
+| 1 | AI Commit & Changelog Generator | GitHub Actions · Python · Conventional Commits · Ollama (local LLM) · Markdown | Easy | 1–2 hrs | Ready
+| 2 | Build-Failure Explainer Bot | Jenkins REST API · Python · Log Parsing · Ollama · Slack Webhook | Easy | 2–3 hrs | In progress
+| 3 | Slack Pipeline Reporter | GitHub Actions / GitLab CI · Slack SDK · Python · Ollama | Easy | 2–3 hrs | In progress
+| 4 | AI Code Review Agent | GitHub API · LangChain Agents · Ollama · Docker | Medium | 3–4 hrs | In progress
+| 5 | Pipeline Doc & Visualization Generator | Jenkinsfile Parser · Graphviz · Mermaid · Python · Streamlit | Medium | 4–5 hrs | In progress
+| 6 | Test Coverage Summarizer AI | PyTest · Coverage.py · Python · Ollama | Medium | 4–6 hrs | In progress
+| 7 | Pipeline Optimizer | GitHub Actions Logs · Python · Heuristic Rules · Ollama | Difficult | 6–8 hrs | In progress
+| 8 | Auto-Rollback Trigger with AI Diagnosis | GitHub Actions · Prometheus Alerts · Python · AWS Lambda (Free Tier) | Difficult | 8–10 hrs | In progress
+| 9 | AI-Powered Security Gate | GitHub CodeQL · Checkov · Python · Policy Rules · Ollama | Difficult | 8–10 hrs | In progress
+| 10 | Self-Healing CI Pipeline Agent | LangGraph · CrewAI · GitHub API · Docker · AWS EC2 (Free Tier) | Difficult | 10–12 hrs | In progress
 
 ---
 
