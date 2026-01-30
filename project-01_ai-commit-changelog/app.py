@@ -1,1 +1,2 @@
 new feature
+second feature
