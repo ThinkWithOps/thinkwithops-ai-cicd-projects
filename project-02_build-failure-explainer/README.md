@@ -101,14 +101,12 @@ npm ERR! ENOENT: no such file or directory, open 'package.json'
 `python jenkins_log_analyzer.py --log sample_jenkins.log`
 
 ✅ Example output:
-============================================================
 🤖 AI Failure Analysis
 🔍 Explanation: The build failed because package.json is missing in the workspace.
 🛠️ Fix Steps:
   1. Verify package.json exists in your repository root
   2. Ensure your CI pipeline checks out the correct branch
 ⚠️ Severity: HIGH
-============================================================
 
 ### Step 5: (Optional) Pipe Logs Directly
 `cat build.log | python jenkins_log_analyzer.py`
@@ -137,11 +135,13 @@ A: Yes! Pipe logs directly: `your-build-command 2>&1 | python jenkins_log_analyz
 A: **Yes!** Entirely offline after installing Ollama and `phi3`. No internet or API keys required.
 
 ## 📦 Project Structure
+```text
 project-02_build-failure-explainer/
 ├── jenkins_log_analyzer.py     # Main script
 ├── requirements.txt            # Python dependencies
 ├── .env.example                # Config template
 ├── README.md                   # This file
 └── (optional) sample_jenkins.log  # For local testing
-
+file
+```
 Made with ❤️ for DevOps engineers who hate debugging build logs.
