@@ -148,6 +148,5 @@ project-02_build-failure-explainer/
 ├── .env.example                # Config template
 ├── README.md                   # This file
 └── (optional) sample_jenkins.log  # For local testing
-file
 ```
 Made with ❤️ for DevOps engineers who hate debugging build logs.
