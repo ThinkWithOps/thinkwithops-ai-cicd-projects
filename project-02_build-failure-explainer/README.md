@@ -69,7 +69,7 @@ You can also use `llama3`:
 
 ## ▶️ How to Use
 
-## ?? Table of Contents (How to Use)
+## 📌 Table of Contents (How to Use)
 1. [Step 1: Install Python Dependencies](#step-1-install-python-dependencies)
 2. [Step 2: Configure `.env` (Optional but Recommended)](#step-2-configure-env-optional-but-recommended)
 3. [Step 3: Prepare a Log File](#step-3-prepare-a-log-file)
