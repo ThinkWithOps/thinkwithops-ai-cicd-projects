@@ -13,7 +13,7 @@ All projects are designed to be **free-tier friendly**, **vendor-neutral**, and 
 | # | Project | Tech Stack (DevOps + AI Tools) | Difficulty | Estimated Setup Time | Status |
 |---|--------|--------------------------------|------------|----------------------|--------|
 | 1 | AI Commit & Changelog Generator | GitHub Actions · Python · Conventional Commits · Ollama (local LLM) · Markdown | Easy | 1–2 hrs | Ready
-| 2 | Build-Failure Explainer Bot | Jenkins REST API · Python · Log Parsing · Ollama · Slack Webhook | Easy | 2–3 hrs | In progress
+| 2 | Build-Failure Explainer Bot | Python · Local Log Parsing · Ollama(phi3) | Easy | 2–3 hrs | Ready
 | 3 | Slack Pipeline Reporter | GitHub Actions / GitLab CI · Slack SDK · Python · Ollama | Easy | 2–3 hrs | In progress
 | 4 | AI Code Review Agent | GitHub API · LangChain Agents · Ollama · Docker | Medium | 3–4 hrs | In progress
 | 5 | Pipeline Doc & Visualization Generator | Jenkinsfile Parser · Graphviz · Mermaid · Python · Streamlit | Medium | 4–5 hrs | In progress
