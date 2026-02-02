@@ -94,12 +94,17 @@ OLLAMA_KEEP_ALIVE=15m
 
 ### Step 3: Prepare a Log File
 Create a sample log (e.g., `sample_jenkins.log`) with real or simulated errors:
+```bash
 npm install
-npm ERR! ENOENT: no such file or directory, open 'package.json'
+npm WARN enoent ENOENT: no such file or directory, open '/workspace/package.json'
+npm ERR! code ENOENT
+npm ERR! syscall open
+npm ERR! path /workspace/package.json
+```
 
 ### Step 4: Run the Analyzer
 `python jenkins_log_analyzer.py --log sample_jenkins.log`
-
+```bash
 ✅ Example output:
 🤖 AI Failure Analysis
 🔍 Explanation: The build failed because package.json is missing in the workspace.
@@ -107,6 +112,7 @@ npm ERR! ENOENT: no such file or directory, open 'package.json'
   1. Verify package.json exists in your repository root
   2. Ensure your CI pipeline checks out the correct branch
 ⚠️ Severity: HIGH
+```
 
 ### Step 5: (Optional) Pipe Logs Directly
 `cat build.log | python jenkins_log_analyzer.py`
