@@ -17,7 +17,7 @@ Perfect for quickly diagnosing build failures without digging through hundreds o
 
 ## 🔁 Workflow Flowchart
 <p align="center">
-  <img src="flowchart.png" alt="AI commit flowchart" width="100%">
+  <img src="flowchart1.png" alt="AI commit flowchart" width="100%">
 </p>
 
 ## 🛠️ Prerequisites
