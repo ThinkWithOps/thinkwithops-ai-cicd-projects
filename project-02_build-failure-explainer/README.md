@@ -15,6 +15,11 @@ Automatically explains why your CI/CD build failed using local AI (Ollama) — *
 
 Perfect for quickly diagnosing build failures without digging through hundreds of log lines — all on your laptop, with no internet.
 
+## 🔁 Workflow Flowchart
+<p align="center">
+  <img src="flowchart.png" alt="AI commit flowchart" width="100%">
+</p>
+
 ## 🛠️ Prerequisites
 
 ### 1. Install Ollama (Windows)
