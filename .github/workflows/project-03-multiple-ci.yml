@@ -1,0 +1,113 @@
+name: CI Pipeline with Slack Notifications
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      - name: Build application
+        id: build
+        run: |
+          echo "Building app..."
+          # Simulate occasional failure
+          if [ $((RANDOM % 4)) -eq 0 ]; then
+            echo "Build failed!" > build.log
+            exit 1
+          else
+            echo "Build succeeded." > build.log
+            exit 0
+          fi
+        continue-on-error: true
+
+      - name: Report Build Success to Slack
+        if: success()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          python project-03_slack-pipeline-reporter/report_to_slack.py \
+            --status success \
+            --job "build-app" \
+            --log "Application built successfully on ${{ github.ref_name }}." \
+            --webhook-url "$SLACK_WEBHOOK_URL"
+
+      - name: Report Build Failure to Slack
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          LOG_MSG="$(cat build.log)"
+          python project-03_slack-pipeline-reporter/report_to_slack.py \
+            --status failure \
+            --job "build-app" \
+            --log "$LOG_MSG" \
+            --webhook-url "$SLACK_WEBHOOK_URL"
+
+  run-tests:
+    needs: build-app  # Only run if build succeeds
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install test dependencies
+        run: pip install pytest
+
+      - name: Run tests
+        id: test
+        run: |
+          echo "Running unit tests..."
+          # Simulate test failure sometimes
+          if [ $((RANDOM % 3)) -eq 0 ]; then
+            echo "Test failed: auth_test.py crashed" > test.log
+            exit 1
+          else
+            echo "All tests passed!" > test.log
+            exit 0
+          fi
+        continue-on-error: true
+
+      - name: Report Test Success to Slack
+        if: success()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          python project-03_slack-pipeline-reporter/report_to_slack.py \
+            --status success \
+            --job "run-tests" \
+            --log "All unit tests passed on ${{ github.ref_name }}." \
+            --webhook-url "$SLACK_WEBHOOK_URL"
+
+      - name: Report Test Failure to Slack
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          LOG_MSG="$(cat test.log)"
+          python project-03_slack-pipeline-reporter/report_to_slack.py \
+            --status failure \
+            --job "run-tests" \
+            --log "$LOG_MSG" \
+            --webhook-url "$SLACK_WEBHOOK_URL"
