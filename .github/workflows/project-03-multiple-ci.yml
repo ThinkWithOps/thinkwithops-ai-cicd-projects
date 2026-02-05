@@ -1,4 +1,4 @@
-name: CI Pipeline with Slack Notifications
+name: CI Multi Pipeline with Slack Notifications
 
 on:
   push:
