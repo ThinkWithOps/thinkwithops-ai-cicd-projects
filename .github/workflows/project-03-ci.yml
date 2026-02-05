@@ -1,28 +1,49 @@
-name: CI Pipeline
+name: CI Pipeline with Slack Notifications
 
-on: [push]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Install deps
-        run: pip install requests
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
 
-      - name: Run tests
-        id: run_tests
+      - name: Simulate build step
+        id: build
+        run: |
+          echo "Building application..."
+          # Simulate success most of the time, occasional failure for demo
+          if [ $((RANDOM % 5)) -eq 0 ]; then
+            echo "Build failed!" > build.log
+            exit 1
+          else
+            echo "Build succeeded." > build.log
+            exit 0
+          fi
+        continue-on-error: true
+
+      - name: Simulate test step
+        id: test
+        if: steps.build.outcome == 'success'
         run: |
           echo "Running tests..."
-          # Simulate test failure sometimes
-          if [ $((RANDOM % 2)) -eq 0 ]; then
-            echo "Test failed!" > test.log
+          if [ $((RANDOM % 3)) -eq 0 ]; then
+            echo "Test failed: unit_test.py crashed" > test.log
             exit 1
           else
             echo "All tests passed!" > test.log
@@ -30,24 +51,30 @@ jobs:
           fi
         continue-on-error: true
 
-      - name: Report to Slack on Failure
-        if: failure()
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: |
-          python report_to_slack.py \
-            --status failure \
-            --job "test" \
-            --log "$(cat test.log)" \
-            --webhook-url "$SLACK_WEBHOOK_URL"
-
-      - name: Report to Slack on Success
+      - name: Report Success to Slack
         if: success()
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
-          python report_to_slack.py \
+          python project-03_slack-pipeline-reporter/report_to_slack.py \
             --status success \
-            --job "test" \
-            --log "All tests passed!" \
+            --job "build-and-test" \
+            --log "Pipeline completed successfully on ${{ github.ref_name }}." \
+            --webhook-url "$SLACK_WEBHOOK_URL"
+
+      - name: Report Failure to Slack
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          LOG_MSG="Pipeline failed on ${{ github.ref_name }}. Job: build-and-test"
+          if [ -f test.log ]; then
+            LOG_MSG="$(cat test.log)"
+          elif [ -f build.log ]; then
+            LOG_MSG="$(cat build.log)"
+          fi
+          python project-03_slack-pipeline-reporter/report_to_slack.py \
+            --status failure \
+            --job "build-and-test" \
+            --log "$LOG_MSG" \
             --webhook-url "$SLACK_WEBHOOK_URL"
