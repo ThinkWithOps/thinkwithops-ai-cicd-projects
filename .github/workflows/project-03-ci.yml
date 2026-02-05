@@ -1,0 +1,53 @@
+name: CI Pipeline
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install deps
+        run: pip install requests
+
+      - name: Run tests
+        id: run_tests
+        run: |
+          echo "Running tests..."
+          # Simulate test failure sometimes
+          if [ $((RANDOM % 2)) -eq 0 ]; then
+            echo "Test failed!" > test.log
+            exit 1
+          else
+            echo "All tests passed!" > test.log
+            exit 0
+          fi
+        continue-on-error: true
+
+      - name: Report to Slack on Failure
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          python report_to_slack.py \
+            --status failure \
+            --job "test" \
+            --log "$(cat test.log)" \
+            --webhook-url "$SLACK_WEBHOOK_URL"
+
+      - name: Report to Slack on Success
+        if: success()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          python report_to_slack.py \
+            --status success \
+            --job "test" \
+            --log "All tests passed!" \
+            --webhook-url "$SLACK_WEBHOOK_URL"
