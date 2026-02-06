@@ -23,7 +23,7 @@ flowchart LR
     B --> E{🧪 run-tests}
     E -->|✅ Success| D
     E -->|❌ Failure| D
-    D --> F[💬 Slack Channel\n#Pipeline Reporter]
+    D --> F[💬 Slack Channel\#Pipeline Reporter]
     style D fill:#4CAF50,stroke:#388E3C,color:white
     style F fill:#26A69A,stroke:#00796B,color:white
 ```
