@@ -37,30 +37,30 @@ Perfect for getting instant, readable pipeline updates — without noise or cost
 
 ### 3. Verify Ollama Installation
 
-Open Git Bash, PowerShell, or CMD and run:
+Open **Git Bash**, **PowerShell**, or **CMD** and run:
 
-ollama --version
+`ollama --version`
 
 ✅ Expected output:  
-ollama version 0.1.x
+`ollama version 0.1.x`
 
 Then check if Ollama is running:  
-ollama list
+`ollama list`
 
 ✅ You should see:  
-NAME    ID    SIZE    MODIFIED
+`NAME    ID    SIZE    MODIFIED`
 
 ### 4. Pull a Model (We Recommend phi3)
 
-ollama pull phi3
+`ollama pull phi3`
 
 > 💡 Why phi3?  
 > - Smaller (~2.3 GB) → faster load time  
 > - Excellent at following instructions  
 > - Ideal for short diagnostic tasks  
 
-You can also use llama3:  
-ollama pull llama3
+You can also use `llama3`:  
+`ollama pull llama3`
 
 ### 5. Create a Slack Incoming Webhook
 
@@ -73,6 +73,12 @@ ollama pull llama3
 > 🔒 You’ll store this securely in GitHub Secrets (for CI) or .env (for local testing)
 
 ## ▶️ How to Use
+
+### Table of Contents
+- [Step 1: Install Python Dependencies](#step-1-install-python-dependencies)
+- [Step 2: Configure .env (Optional but Recommended)](#step-2-configure-env-optional-but-recommended)
+- [Step 3: Test Locally](#step-3-test-locally)
+- [Step 4: Use in GitHub Actions](#step-4-use-in-github-actions)
 
 ### Step 1: Install Python Dependencies
 pip install -r requirements.txt
@@ -124,11 +130,13 @@ A: Yes! Just run the script locally with sample log text and your Slack webhook.
 A: Yes — it uses a fallback message when Ollama isn’t available (which is normal in CI). You only need to provide the Slack webhook via secrets.
 
 ## 📦 Project Structure
+```text
 project-03_slack-pipeline-reporter/
 ├── report_to_slack.py     # Main script
 ├── requirements.txt      # Python dependencies
 ├── .env.example          # Config template
 └── README.md             # This file
+```
 
 Note: The GitHub Actions workflow file lives at .github/workflows/ci.yml in the root of your repository.
 
