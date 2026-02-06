@@ -13,6 +13,11 @@ Your CI pipeline talks to you on Slack like a teammate — using local AI (Ollam
 
 Perfect for getting instant, readable pipeline updates — without noise or cost.
 
+## 🔁 Workflow Flowchart
+<p align="center">
+  <img src="flowchart3.png" alt="AI commit flowchart" width="100%">
+</p>
+
 ## 🛠️ Prerequisites
 
 ### 1. Install Ollama (Windows)
