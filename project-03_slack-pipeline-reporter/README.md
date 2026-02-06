@@ -78,12 +78,14 @@ ollama pull llama3
 pip install -r requirements.txt
 
 ### Step 2: Configure .env (Optional but Recommended)
-cp .env.example .env
+`cp .env.example .env`
 
-Edit .env to customize:
+Edit `.env` to customize:
+```
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
 OLLAMA_HOST=http://localhost:11434
 MODEL_NAME=phi3
+```
 
 > 🔒 Note: .env is in .gitignore — never committed.
 
