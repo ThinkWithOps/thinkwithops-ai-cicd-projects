@@ -64,6 +64,11 @@ You can also use `llama3`:
 
 ### 5. Create a Slack Incoming Webhook
 
+> Note:
+> - Go to https://slack.com/signin#/signin
+> - You can sign in with Google if you wish to
+> - Create Workspace (give any name for workspace)
+
 1. Go to https://api.slack.com/apps → Create New App → From scratch  
 2. Name it (e.g., Pipeline Reporter) → pick your workspace  
 3. Go to Incoming Webhooks → Activate  
