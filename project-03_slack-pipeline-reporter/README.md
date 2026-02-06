@@ -92,7 +92,6 @@ SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
 OLLAMA_HOST=http://localhost:11434
 MODEL_NAME=phi3
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/XXX/YYY/ZZZ_PLACEHOLDER_DO_NOT_COMMIT_REAL_URL
-
 ```
 
 > 🔒 Note: .env is in .gitignore — never committed.
