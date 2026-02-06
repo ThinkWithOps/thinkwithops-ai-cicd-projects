@@ -14,9 +14,19 @@ Your CI pipeline talks to you on Slack like a teammate — using local AI (Ollam
 Perfect for getting instant, readable pipeline updates — without noise or cost.
 
 ## 🔁 Workflow Flowchart
-<p align="center">
-  <img src="flowchart3.png" alt="AI commit flowchart" width="100%">
-</p>
+```mermaid
+flowchart LR
+    A[?? git push] --> B[?? GitHub Actions]
+    B --> C{??? build-app}
+    C -->|? Success| D[?? Report to Slack]
+    C -->|? Failure| D
+    B --> E{?? run-tests}
+    E -->|? Success| D
+    E -->|? Failure| D
+    D --> F[?? Slack Channel\n#Pipeline Reporter]
+    style D fill:#4CAF50,stroke:#388E3C,color:white
+    style F fill:#26A69A,stroke:#00796B,color:white
+```
 
 ## 🛠️ Prerequisites
 
