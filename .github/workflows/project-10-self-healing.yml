@@ -1,0 +1,11 @@
+name: Project 10 - Self-Healing (Manual Only)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: echo "Project 10 workflow disabled (manual only)."

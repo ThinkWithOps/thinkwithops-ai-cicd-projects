@@ -1,0 +1,11 @@
+name: Project 04 - Code Review (Manual Only)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: echo "Project 04 workflow disabled (manual only)."

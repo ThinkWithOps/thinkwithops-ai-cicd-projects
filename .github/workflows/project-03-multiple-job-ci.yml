@@ -3,8 +3,14 @@ name: CI - Multi-Job with Slack Alerts
 on:
   push:
     branches: [ main ]
+    paths:
+      - "project-03_slack-pipeline-reporter/**"
+      - ".github/workflows/project-03-multiple-job-ci.yml"
   pull_request:
     branches: [ main ]
+    paths:
+      - "project-03_slack-pipeline-reporter/**"
+      - ".github/workflows/project-03-multiple-job-ci.yml"
 
 jobs:
   build-app:
@@ -120,7 +126,7 @@ jobs:
           set -o pipefail
           {
             echo "Running intentional failure job..."
-            echo "ERROR: deliberate failure for Slack testing"
+            echo "ERROR: unit-test suite failed - AssertionError in test_auth.py (expected True, got False)"
             exit 1
           } 2>&1 | tee fail.log
 

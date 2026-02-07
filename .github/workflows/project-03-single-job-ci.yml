@@ -3,8 +3,14 @@ name: CI - Single Job with Slack Alerts
 on:
   push:
     branches: [ main ]
+    paths:
+      - "project-03_slack-pipeline-reporter/**"
+      - ".github/workflows/project-03-single-job-ci.yml"
   pull_request:
     branches: [ main ]
+    paths:
+      - "project-03_slack-pipeline-reporter/**"
+      - ".github/workflows/project-03-single-job-ci.yml"
 
 jobs:
   build:
