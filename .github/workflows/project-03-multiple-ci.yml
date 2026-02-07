@@ -75,19 +75,27 @@ jobs:
       - name: Install test dependencies
         run: pip install pytest requests
 
+      # - name: Run tests
+      #   id: test
+      #   run: |
+      #     echo "Running unit tests..."
+      #     # Simulate test failure sometimes
+      #     if [ $((RANDOM % 3)) -eq 0 ]; then
+      #       echo "Test failed: auth_test.py crashed" > test.log
+      #       exit 1
+      #     else
+      #       echo "All tests passed!" > test.log
+      #       exit 0
+      #     fi
+      #   continue-on-error: true
+
       - name: Run tests
         id: test
         run: |
           echo "Running unit tests..."
-          # Simulate test failure sometimes
-          if [ $((RANDOM % 3)) -eq 0 ]; then
-            echo "Test failed: auth_test.py crashed" > test.log
-            exit 1
-          else
-            echo "All tests passed!" > test.log
-            exit 0
-          fi
-        continue-on-error: true
+          # Force a realistic failure
+          echo "ERROR: Failed to connect to database - timeout after 30s" > test.log
+          exit 1
 
       - name: Report Test Success to Slack
         if: success()
