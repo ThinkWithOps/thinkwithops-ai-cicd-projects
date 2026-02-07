@@ -23,14 +23,17 @@ jobs:
 
       - name: Build application
         run: |
-          echo "Building app..."
-          if [ $((RANDOM % 4)) -eq 0 ]; then
-            echo "ERROR: webpack failed - config file not found" > build.log
-            exit 1
-          else
-            echo "Build succeeded." > build.log
-            exit 0
-          fi
+          set -o pipefail
+          {
+            echo "Building app..."
+            if [ $((RANDOM % 4)) -eq 0 ]; then
+              echo "ERROR: webpack failed - config file not found"
+              exit 1
+            else
+              echo "Build succeeded."
+              exit 0
+            fi
+          } 2>&1 | tee build.log
 
       - name: Report Build Success to Slack
         if: success()
@@ -72,14 +75,17 @@ jobs:
 
       - name: Run unit tests
         run: |
-          echo "Running tests..."
-          if [ $((RANDOM % 3)) -eq 0 ]; then
-            echo "ERROR: test_auth.py failed - AssertionError: expected True, got False" > test.log
-            exit 1
-          else
-            echo "All tests passed!" > test.log
-            exit 0
-          fi
+          set -o pipefail
+          {
+            echo "Running tests..."
+            if [ $((RANDOM % 3)) -eq 0 ]; then
+              echo "ERROR: test_auth.py failed - AssertionError: expected True, got False"
+              exit 1
+            else
+              echo "All tests passed!"
+              exit 0
+            fi
+          } 2>&1 | tee test.log
 
       - name: Report Test Success to Slack
         if: success()

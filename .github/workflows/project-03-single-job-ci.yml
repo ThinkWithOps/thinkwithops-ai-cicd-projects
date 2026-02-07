@@ -23,15 +23,18 @@ jobs:
 
       - name: Run build step
         run: |
-          echo "Building application..."
-          # Fail 30% of the time with a real error
-          if [ $((RANDOM % 10)) -lt 3 ]; then
-            echo "ERROR: npm ERR! Missing package.json in root directory" > build.log
-            exit 1
-          else
-            echo "Build succeeded." > build.log
-            exit 0
-          fi
+          set -o pipefail
+          {
+            echo "Building application..."
+            # Fail 30% of the time with a real error
+            if [ $((RANDOM % 10)) -lt 3 ]; then
+              echo "ERROR: npm ERR! Missing package.json in root directory"
+              exit 1
+            else
+              echo "Build succeeded."
+              exit 0
+            fi
+          } 2>&1 | tee build.log
 
       - name: Report Success to Slack
         if: success()
