@@ -73,6 +73,7 @@ def main():
 
     # Truncate log for AI
     log_snippet = (args.log[:800] + "...") if len(args.log) > 800 else args.log
+    error_line = extract_error_line(args.log) if args.status == "failure" else ""
 
     if args.status == "success":
         ai_prompt = f"Summarize this successful CI job in one friendly sentence for a team Slack channel:\nJob: {args.job}\nLog: {log_snippet}"
