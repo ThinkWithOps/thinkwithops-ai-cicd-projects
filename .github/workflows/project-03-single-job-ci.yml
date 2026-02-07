@@ -22,18 +22,16 @@ jobs:
         run: pip install requests
 
       - name: Run build step
-        id: build
         run: |
           echo "Building application..."
-          # Simulate a realistic failure 30% of the time
+          # Fail 30% of the time with a real error
           if [ $((RANDOM % 10)) -lt 3 ]; then
-            echo "ERROR: npm ERR! Missing package.json" > build.log
+            echo "ERROR: npm ERR! Missing package.json in root directory" > build.log
             exit 1
           else
             echo "Build succeeded." > build.log
             exit 0
           fi
-        continue-on-error: true
 
       - name: Report Success to Slack
         if: success()

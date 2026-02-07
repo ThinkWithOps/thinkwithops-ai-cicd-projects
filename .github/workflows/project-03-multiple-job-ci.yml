@@ -25,13 +25,12 @@ jobs:
         run: |
           echo "Building app..."
           if [ $((RANDOM % 4)) -eq 0 ]; then
-            echo "ERROR: webpack failed - missing config file" > build.log
+            echo "ERROR: webpack failed - config file not found" > build.log
             exit 1
           else
             echo "Build succeeded." > build.log
             exit 0
           fi
-        continue-on-error: true
 
       - name: Report Build Success to Slack
         if: success()
@@ -81,7 +80,6 @@ jobs:
             echo "All tests passed!" > test.log
             exit 0
           fi
-        continue-on-error: true
 
       - name: Report Test Success to Slack
         if: success()
