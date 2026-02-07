@@ -124,11 +124,7 @@ jobs:
       - name: Deliberate failure
         run: |
           set -o pipefail
-          {
-            echo "Running intentional failure job..."
-            echo "ERROR: unit-test suite failed - AssertionError in test_auth.py (expected True, got False)"
-            exit 1
-          } 2>&1 | tee fail.log
+          npm install 2>&1 | tee fail.log
 
       - name: Report Failure to Slack
         if: failure()
