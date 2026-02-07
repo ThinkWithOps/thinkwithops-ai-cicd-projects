@@ -1,4 +1,4 @@
-name: CI Multi Pipeline with Slack Notifications
+name: CI - Multi-Job with Slack Alerts
 
 on:
   push:
@@ -19,17 +19,13 @@ jobs:
           python-version: '3.10'
 
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests
+        run: pip install requests
 
       - name: Build application
-        id: build
         run: |
           echo "Building app..."
-          # Simulate occasional failure
           if [ $((RANDOM % 4)) -eq 0 ]; then
-            echo "Build failed!" > build.log
+            echo "ERROR: webpack failed - missing config file" > build.log
             exit 1
           else
             echo "Build succeeded." > build.log
@@ -45,7 +41,7 @@ jobs:
           python project-03_slack-pipeline-reporter/report_to_slack.py \
             --status success \
             --job "build-app" \
-            --log "Application built successfully on ${{ github.ref_name }}." \
+            --log "Application built successfully." \
             --webhook-url "$SLACK_WEBHOOK_URL"
 
       - name: Report Build Failure to Slack
@@ -61,7 +57,7 @@ jobs:
             --webhook-url "$SLACK_WEBHOOK_URL"
 
   run-tests:
-    needs: build-app  # Only run if build succeeds
+    needs: build-app
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -72,30 +68,20 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install test dependencies
-        run: pip install pytest requests
+      - name: Install dependencies
+        run: pip install requests pytest
 
-      # - name: Run tests
-      #   id: test
-      #   run: |
-      #     echo "Running unit tests..."
-      #     # Simulate test failure sometimes
-      #     if [ $((RANDOM % 3)) -eq 0 ]; then
-      #       echo "Test failed: auth_test.py crashed" > test.log
-      #       exit 1
-      #     else
-      #       echo "All tests passed!" > test.log
-      #       exit 0
-      #     fi
-      #   continue-on-error: true
-
-      - name: Run tests
-        id: test
+      - name: Run unit tests
         run: |
-          echo "Running unit tests..."
-          # Force a realistic failure
-          echo "ERROR: Failed to connect to database - timeout after 30s" > test.log
-          exit 1
+          echo "Running tests..."
+          if [ $((RANDOM % 3)) -eq 0 ]; then
+            echo "ERROR: test_auth.py failed - AssertionError: expected True, got False" > test.log
+            exit 1
+          else
+            echo "All tests passed!" > test.log
+            exit 0
+          fi
+        continue-on-error: true
 
       - name: Report Test Success to Slack
         if: success()
@@ -105,7 +91,7 @@ jobs:
           python project-03_slack-pipeline-reporter/report_to_slack.py \
             --status success \
             --job "run-tests" \
-            --log "All unit tests passed on ${{ github.ref_name }}." \
+            --log "All unit tests passed." \
             --webhook-url "$SLACK_WEBHOOK_URL"
 
       - name: Report Test Failure to Slack

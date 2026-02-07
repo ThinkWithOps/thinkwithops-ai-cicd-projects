@@ -1,4 +1,4 @@
-name: CI Pipeline with Slack Notifications
+name: CI - Single Job with Slack Alerts
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -19,34 +19,18 @@ jobs:
           python-version: '3.10'
 
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests
+        run: pip install requests
 
-      - name: Simulate build step
+      - name: Run build step
         id: build
         run: |
           echo "Building application..."
-          # Simulate success most of the time, occasional failure for demo
-          if [ $((RANDOM % 5)) -eq 0 ]; then
-            echo "Build failed!" > build.log
+          # Simulate a realistic failure 30% of the time
+          if [ $((RANDOM % 10)) -lt 3 ]; then
+            echo "ERROR: npm ERR! Missing package.json" > build.log
             exit 1
           else
             echo "Build succeeded." > build.log
-            exit 0
-          fi
-        continue-on-error: true
-
-      - name: Simulate test step
-        id: test
-        if: steps.build.outcome == 'success'
-        run: |
-          echo "Running tests..."
-          if [ $((RANDOM % 3)) -eq 0 ]; then
-            echo "Test failed: unit_test.py crashed" > test.log
-            exit 1
-          else
-            echo "All tests passed!" > test.log
             exit 0
           fi
         continue-on-error: true
@@ -58,8 +42,8 @@ jobs:
         run: |
           python project-03_slack-pipeline-reporter/report_to_slack.py \
             --status success \
-            --job "build-and-test" \
-            --log "Pipeline completed successfully on ${{ github.ref_name }}." \
+            --job "build" \
+            --log "Build completed successfully on ${{ github.ref_name }}." \
             --webhook-url "$SLACK_WEBHOOK_URL"
 
       - name: Report Failure to Slack
@@ -67,14 +51,9 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
-          LOG_MSG="Pipeline failed on ${{ github.ref_name }}. Job: build-and-test"
-          if [ -f test.log ]; then
-            LOG_MSG="$(cat test.log)"
-          elif [ -f build.log ]; then
-            LOG_MSG="$(cat build.log)"
-          fi
+          LOG_MSG="$(cat build.log)"
           python project-03_slack-pipeline-reporter/report_to_slack.py \
             --status failure \
-            --job "build-and-test" \
+            --job "build" \
             --log "$LOG_MSG" \
             --webhook-url "$SLACK_WEBHOOK_URL"
