@@ -15,6 +15,26 @@ import requests
 import json
 import sys
 
+
+def extract_error_line(log_text: str) -> str:
+    """Pick a concise error line from a log snippet."""
+    candidates = []
+    for line in log_text.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        lower = stripped.lower()
+        if any(token in lower for token in ["error", "exception", "failed", "fail", "fatal"]):
+            candidates.append(stripped)
+    if candidates:
+        return candidates[0]
+    # Fallback to last non-empty line
+    for line in reversed(log_text.splitlines()):
+        stripped = line.strip()
+        if stripped:
+            return stripped
+    return ""
+
 def call_ollama(prompt: str, model: str = "phi3", host: str = "http://localhost:11434") -> str:
     try:
         resp = requests.post(
@@ -66,6 +86,9 @@ def main():
             ai_message = f"✅ Job `{args.job}` completed successfully."
         else:
             ai_message = f"⚠️ Job `{args.job}` failed. Check logs for details."
+
+    if args.status == "failure" and error_line:
+        ai_message = f"{ai_message}\nError: {error_line}"
 
     # Add emoji and formatting
     if args.status == "success":
