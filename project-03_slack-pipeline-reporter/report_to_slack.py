@@ -93,7 +93,8 @@ def main():
 
     # Add emoji and formatting
     workflow_name = os.getenv("GITHUB_WORKFLOW", "").strip()
-    workflow_line = f"{workflow_name}\n" if workflow_name else ""
+    workflow_prefix = "🤖 " if workflow_name else ""
+    workflow_line = f"{workflow_prefix}{workflow_name}\n" if workflow_name else ""
     if args.status == "success":
         slack_msg = f"🟢 *CI Pipeline Update*\n{workflow_line}{ai_message}"
     else:
