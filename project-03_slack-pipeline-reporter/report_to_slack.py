@@ -92,10 +92,12 @@ def main():
         ai_message = f"{ai_message}\nError: {error_line}"
 
     # Add emoji and formatting
+    workflow_name = os.getenv("GITHUB_WORKFLOW", "").strip()
+    workflow_line = f"{workflow_name}\n" if workflow_name else ""
     if args.status == "success":
-        slack_msg = f"🟢 *CI Pipeline Update*\n{ai_message}"
+        slack_msg = f"🟢 *CI Pipeline Update*\n{workflow_line}{ai_message}"
     else:
-        slack_msg = f"🔴 *CI Pipeline Alert*\n{ai_message}"
+        slack_msg = f"🔴 *CI Pipeline Alert*\n{workflow_line}{ai_message}"
 
     # Send to Slack
     if send_to_slack(args.webhook_url, slack_msg):
