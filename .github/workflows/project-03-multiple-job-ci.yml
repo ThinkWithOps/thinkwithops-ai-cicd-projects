@@ -124,7 +124,10 @@ jobs:
       - name: Deliberate failure
         run: |
           set -o pipefail
-          npm install 2>&1 | tee fail.log
+          {
+            echo "ERROR: npm ERR! Missing package.json in root directory"
+            exit 1
+          } 2>&1 | tee fail.log
 
       - name: Report Failure to Slack
         if: failure()

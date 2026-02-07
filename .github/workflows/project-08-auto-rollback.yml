@@ -1,0 +1,11 @@
+name: Project 08 - Auto Rollback (Manual Only)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: echo "Project 08 workflow disabled (manual only)."
