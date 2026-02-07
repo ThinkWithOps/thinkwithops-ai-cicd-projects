@@ -26,13 +26,8 @@ jobs:
           set -o pipefail
           {
             echo "Building app..."
-            if [ $((RANDOM % 4)) -eq 0 ]; then
-              echo "ERROR: webpack failed - config file not found"
-              exit 1
-            else
-              echo "Build succeeded."
-              exit 0
-            fi
+            echo "Build succeeded."
+            exit 0
           } 2>&1 | tee build.log
 
       - name: Report Build Success to Slack
@@ -78,13 +73,8 @@ jobs:
           set -o pipefail
           {
             echo "Running tests..."
-            if [ $((RANDOM % 3)) -eq 0 ]; then
-              echo "ERROR: test_auth.py failed - AssertionError: expected True, got False"
-              exit 1
-            else
-              echo "All tests passed!"
-              exit 0
-            fi
+            echo "All tests passed!"
+            exit 0
           } 2>&1 | tee test.log
 
       - name: Report Test Success to Slack
