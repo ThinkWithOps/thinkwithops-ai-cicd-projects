@@ -1,0 +1,61 @@
+name: AI Code Review Agent
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  review-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Needed for full diff
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r project-04_ai-code-review-agent/requirements.txt
+
+      - name: Get PR diff
+        id: get_diff
+        run: |
+          git diff HEAD~1 > project-04_ai-code-review-agent/pr_diff.patch
+          echo "Diff saved to pr_diff.patch"
+
+      - name: Run AI Code Review (Fallback Mode)
+        env:
+          GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+        run: |
+          cd project-04_ai-code-review-agent
+          # Since Ollama isn't available in CI, we simulate a rule-based fallback
+          echo "⚠️ AI Review (Simulated - Ollama not available in CI):" > review.txt
+          if grep -q "print(" pr_diff.patch; then
+            echo "[MEDIUM] Found debug print() statements — remove before merge." >> review.txt
+          fi
+          if grep -q "TODO\|FIXME" pr_diff.patch; then
+            echo "[LOW] Found TODO/FIXME comments." >> review.txt
+          fi
+          if [ ! -s review.txt ] || grep -q "⚠️ AI Review (Simulated" review.txt; then
+            echo "✅ No issues detected." >> review.txt
+          fi
+          cat review.txt
+          # Save for next step
+          echo "REVIEW<<EOF" >> $GITHUB_ENV
+          cat review.txt >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Post Review to PR
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            🤖 **AI Code Review Agent**
+            
+            ${{ env.REVIEW }}
+          GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
