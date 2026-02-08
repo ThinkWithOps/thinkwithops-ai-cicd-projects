@@ -126,7 +126,7 @@ python report_to_slack.py --status failure --job "test" --log "npm ERR! Missing 
 2. Add new repository secret:  
    - Name: SLACK_WEBHOOK_URL  
    - Value: Your webhook URL  
-3. In your workflow file (.github/workflows/ci.yml), add steps that call the script with --status, --job, --log, and --webhook-url using the secret
+3. In your workflow file (.github/workflows/project-03-single-job-ci.yml) and (project-03-multiple-job-ci.yml), add steps that call the script with --status, --job, --log, and --webhook-url using the secret
 
 > 💡 In CI environments (like GitHub Actions), Ollama won’t be running, so the script automatically uses a plain-text fallback message — no AI, but still useful and reliable.
 
