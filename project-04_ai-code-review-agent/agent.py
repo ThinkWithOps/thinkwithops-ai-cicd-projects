@@ -1,40 +1,37 @@
 #!/usr/bin/env python3
 import os
-import sys
-from langchain_ollama import OllamaLLM
-from langchain_core.prompts import PromptTemplate
-from langchain.chains import LLMChain
-from github_client import GitHubClient
+try:
+    from langchain_ollama import OllamaLLM
+    from langchain_core.prompts import PromptTemplate
+    from langchain_core.output_parsers import StrOutputParser
+except ModuleNotFoundError as exc:
+    raise SystemExit(
+        "Missing dependency. Run:\n"
+        "python -m pip install -r requirements.txt\n"
+        "python -m pip install langchain-ollama\n"
+        f"Original error: {exc}"
+    )
 
-def main():
-    if len(sys.argv) < 4:
-        print("Usage: python agent.py <owner> <repo> <pr_number>")
-        sys.exit(1)
 
-    owner, repo, pr_num = sys.argv[1], sys.argv[2], int(sys.argv[3])
-    
-    # Read diff (in real CI, you'd get this from git or GitHub API)
-    with open("sample_diff.patch") as f:
-        diff = f.read()
-
-    # Set up LangChain + Ollama
+def review_code(diff: str) -> str:
     model_name = os.getenv("OLLAMA_MODEL", "phi3")
     llm = OllamaLLM(model=model_name, temperature=0.1)
-    
-    with open("prompts/review_prompt.txt") as f:
+
+    with open("prompts/review_prompt.txt", encoding="utf-8") as f:
         template = PromptTemplate.from_template(f.read())
-    
-    chain = LLMChain(llm=llm, prompt=template)
-    
-    print("🔍 AI is reviewing your code...")
-    review = chain.run(diff=diff).strip()
-    
-    print("\n🤖 AI Review:\n")
-    print(review)
-    
-    # Optional: post to GitHub PR
-    # client = GitHubClient()
-    # client.post_pr_comment(owner, repo, pr_num, f"🤖 **AI Code Review**\n\n{review}")
+
+    chain = template | llm | StrOutputParser()
+    return chain.invoke({"diff": diff}).strip()
+
 
 if __name__ == "__main__":
-    main()
+    # Load diff from file (for local dry run)
+    with open("sample_diff.patch", encoding="utf-8") as f:
+        diff = f.read()
+
+    review = review_code(diff)
+    print("\n" + "=" * 50)
+    print("AI CODE REVIEW")
+    print("=" * 50)
+    print(review)
+    print("=" * 50)

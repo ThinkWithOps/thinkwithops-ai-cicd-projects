@@ -1,0 +1,14 @@
+# Create sample_diff.patch
+cat > project-04_ai-code-review-agent/sample_diff.patch << 'EOF'
+diff --git a/app.py b/app.py
+new file mode 100644
+index 0000000..abc1234
+--- /dev/null
++++ b/app.py
+@@ -0,0 +1,5 @@
++def login_user():
++    api_key = "sk-abc123xyz"  # Hardcoded secret!
++    print("Debug: user logged in")  # Debug print
++    return {"status": "ok"}
++
+EOF
