@@ -3,6 +3,13 @@ name: AI Code Review Agent
 on:
   pull_request:
     types: [opened, reopened, synchronize]
+    paths:
+      - "project-04_ai-code-review-agent/**"
+      - ".github/workflows/project-04-pr-review.yml"
+
+permissions:
+  pull-requests: write
+  contents: read
 
 jobs:
   review-pr:
@@ -11,7 +18,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Needed for full diff
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -21,41 +28,55 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install -r project-04_ai-code-review-agent/requirements.txt
+          pip install requests
 
-      - name: Get PR diff
-        id: get_diff
+      - name: Generate PR diff
         run: |
-          git diff HEAD~1 > project-04_ai-code-review-agent/pr_diff.patch
-          echo "Diff saved to pr_diff.patch"
+          git diff HEAD~1 > pr_diff.patch
+          if [ ! -s pr_diff.patch ]; then
+            echo "⚠️ No changes detected in PR."
+            echo "REVIEW=✅ No code changes to review." >> $GITHUB_ENV
+            exit 0
+          fi
 
-      - name: Run AI Code Review (Fallback Mode)
-        env:
-          GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+      - name: Run Rule-Based Code Review
+        id: review
         run: |
-          cd project-04_ai-code-review-agent
-          # Since Ollama isn't available in CI, we simulate a rule-based fallback
-          echo "⚠️ AI Review (Simulated - Ollama not available in CI):" > review.txt
+          REVIEW="🤖 **AI Code Review Agent (CI Fallback)**\n\n"
+          HAS_ISSUES=false
+
+          # Check for hardcoded secrets
+          if grep -q -i "apikey\|api_key\|password\|secret\|token\|sk-[a-zA-Z0-9]" pr_diff.patch; then
+            REVIEW+="- [CRITICAL] Hardcoded secret or API key detected\n"
+            HAS_ISSUES=true
+          fi
+
+          # Check for debug prints
           if grep -q "print(" pr_diff.patch; then
-            echo "[MEDIUM] Found debug print() statements — remove before merge." >> review.txt
+            REVIEW+="- [MEDIUM] Debug print() statement found\n"
+            HAS_ISSUES=true
           fi
-          if grep -q "TODO\|FIXME" pr_diff.patch; then
-            echo "[LOW] Found TODO/FIXME comments." >> review.txt
+
+          # Check for TODO/FIXME
+          if grep -iq "TODO\|FIXME\|HACK\|XXX" pr_diff.patch; then
+            REVIEW+="- [LOW] TODO/FIXME comment detected\n"
+            HAS_ISSUES=true
           fi
-          if [ ! -s review.txt ] || grep -q "⚠️ AI Review (Simulated" review.txt; then
-            echo "✅ No issues detected." >> review.txt
+
+          # Final message
+          if [ "$HAS_ISSUES" = "true" ]; then
+            REVIEW+="→ Please address these before merging."
+          else
+            REVIEW="✅ No issues detected in this PR."
           fi
-          cat review.txt
-          # Save for next step
+
+          # Escape newlines for GitHub env
           echo "REVIEW<<EOF" >> $GITHUB_ENV
-          cat review.txt >> $GITHUB_ENV
+          echo -e "$REVIEW" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
-      - name: Post Review to PR
+      - name: Post Review to Pull Request
         uses: thollander/actions-comment-pull-request@v2
         with:
-          message: |
-            🤖 **AI Code Review Agent**
-            
-            ${{ env.REVIEW }}
-          GITHUB_TOKEN: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
+          message: ${{ env.REVIEW }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
