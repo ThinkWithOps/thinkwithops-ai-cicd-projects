@@ -22,7 +22,7 @@ load_dotenv()  # ← This loads .env automatically
 # Configuration
 MAX_DIFF_CHARS = int(os.getenv("MAX_DIFF_CHARS", "400"))  # Faster default
 DEFAULT_OLLAMA_HOST = "http://localhost:11434"
-DEFAULT_MODEL_NAME = "phi3"
+DEFAULT_MODEL_NAME = "llama3.2"
 DEFAULT_RELEASE_VERSION = "v1.0"
 
 
